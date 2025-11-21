@@ -1,5 +1,5 @@
-import Title from '@/components/Title';
-import Button from '../../components/Button';
+import Title from '@/components/common/Title';
+import Button from '../../components/common/Button';
 
 export default function AiTuber() {
   return (

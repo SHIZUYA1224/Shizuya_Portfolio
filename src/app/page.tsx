@@ -1,17 +1,21 @@
-import Title from '@/components/Title';
-import Button from '../components/Button';
+import Title from '@/components/common/Title';
+import Button from '@/components/common/Button';
+import HeroSection from '@/components/MainPageSections/HeroSection';
+import AboutSection from '@/components/MainPageSections/AboutSection';
+import CgSection from '@/components/MainPageSections/CgSection';
+import MusicSection from '@/components/MainPageSections/MusicSection';
+import AiTuberSection from '@/components/MainPageSections/AiTuberSection';
+import ContactSection from '@/components/MainPageSections/ContactSection';
 
 export default function Home() {
   return (
     <main>
-      <Title text="SHIZUYA Portfolio" />
-      <p>Welcome to my 3D Interactive Self-Introduction Site</p>
-
-      <div　className="flex flex-col gap-4 items-start">
-        <Button href="/room" text="Enter 3D Room" />
-        <Button href="/ai-tuber" text="AI-Tuber" />
-        <Button href="/music" text="Music App" />
-      </div>
+      <HeroSection />
+      <AboutSection />
+      <CgSection />
+      <MusicSection />
+      <AiTuberSection />
+      <ContactSection />
     </main>
   );
 }

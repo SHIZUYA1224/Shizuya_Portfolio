@@ -3,8 +3,8 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Box } from '@react-three/drei';
 import { useRouter } from 'next/navigation';
-import Button from '../../components/Button';
-import Title from '@/components/Title';
+import Button from '../../components/common/Button';
+import Title from '@/components/common/Title';
 
 export default function Room() {
   const router = useRouter();
