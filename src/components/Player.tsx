@@ -1,5 +1,5 @@
 import useAudioPlayer from '../app/music/useAudioPlayer'; // オーディオプレイヤーロジック
-import type { Track } from '../app/music/data/tracks'; // トラックデータ型
+import type { Track } from '../config/tracks'; // トラックデータ型
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react'; // モダンなアイコンセット
 
 interface PlayerProps {

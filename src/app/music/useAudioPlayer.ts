@@ -1,6 +1,6 @@
 // src/app/music/hooks/useAudioPlayer.ts
 import { useEffect, useRef, useState } from 'react';
-import type { Track } from './data/tracks'; // 追加: Track型をインポート
+import type { Track } from '../../config/tracks'; // 追加: Track型をインポート
 
 export default function useAudioPlayer(track: Track | null) {
   // 修正: trackにTrack型を追加

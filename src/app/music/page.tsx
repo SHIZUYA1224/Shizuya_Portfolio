@@ -4,9 +4,9 @@ import Title from '@/components/common/Title';
 import Button from '@/components/common/Button';
 import TrackList from '@/components/TrackList';
 import Player from '@/components/Player';
-import { TRACKS } from './data/tracks';
+import { TRACKS } from '../../config/tracks';
 import { useState } from 'react';
-import type { Track } from './data/tracks'; // 型インポート
+import type { Track } from '../../config/tracks'; // 型インポート
 
 export default function Music() {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);

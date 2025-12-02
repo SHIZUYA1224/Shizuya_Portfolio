@@ -1,7 +1,7 @@
 // src/components/TrackList.tsx
 'use client';
 
-import type { Track } from '../app/music/data/tracks'; // 修正: パスを正しく
+import type { Track } from '../config/tracks'; // 修正: パスを正しく
 
 interface TrackListProps {
   tracks: Track[];
