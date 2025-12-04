@@ -20,4 +20,3 @@ export const PRESET_MODELS: PresetModel[] = [
     description: '高火力の遠距離アタッカー。',
   },
 ];
-ßß;
