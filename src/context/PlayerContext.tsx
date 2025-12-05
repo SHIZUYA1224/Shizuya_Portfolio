@@ -40,28 +40,44 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const playTrack = (t: Track) => {
     setCurrentTrack(t);
     setIsPlaying(true);
+    // 非同期で呼ぶ
+    Promise.resolve().then(() => controlsRef.current.play?.());
   };
 
-  const togglePlay = () => setIsPlaying((p) => !p);
+  const togglePlay = () => {
+    let next = false;
+    setIsPlaying((prev) => {
+      next = !prev;
+      return next;
+    });
+    Promise.resolve().then(() => {
+      if (next) controlsRef.current.play?.();
+      else controlsRef.current.pause?.();
+    });
+  };
 
   // registerControls: Player が呼び出してシーク/プレイ関数を登録する
   const registerControls = (c: PlayerControls) => {
     controlsRef.current = { ...controlsRef.current, ...(c ?? {}) };
+    // 返り値: deregister
+    return () => {
+      // 適切にクリーンアップする戦略に応じて実装
+      controlsRef.current = {}; // シンプルに全部消す
+    };
   };
 
   // 外部から再生位置を切り替えるための関数
   const seekTo = (time: number) => {
     controlsRef.current.seek?.(time);
-    // スクロール時は再生も始めたい場合が多いので isPlaying を true にする
     setIsPlaying(true);
-    controlsRef.current.play?.();
+    setTimeout(() => controlsRef.current.play?.(), 0);
   };
 
   // 時刻指定で再生を開始する（seek + play）
   const playFrom = (time: number) => {
     controlsRef.current.seek?.(time);
-    controlsRef.current.play?.();
     setIsPlaying(true);
+    setTimeout(() => controlsRef.current.play?.(), 0);
   };
 
   const value: PlayerContextType = {

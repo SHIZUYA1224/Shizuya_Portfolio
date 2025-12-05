@@ -17,8 +17,17 @@ export default function Player({
   playlist,
   onSelectTrack,
 }: PlayerProps) {
-  const { audioRef, progress, volume, duration, seek, setVol, play, pause } =
-    useAudioPlayer(track);
+  const {
+    audioRef,
+    progress,
+    volume,
+    duration,
+    seek,
+    setVol,
+    play,
+    pause,
+    isPlaying,
+  } = useAudioPlayer(track);
 
   const {
     currentTrack,
@@ -28,10 +37,12 @@ export default function Player({
   } = usePlayer();
 
   // Context -> Audio 一方向同期（再生を命令）
+  // 追加: 内部の isPlaying と照合して差分がある場合のみ呼ぶ
   useEffect(() => {
+    if (ctxIsPlaying === isPlaying) return;
     if (ctxIsPlaying) void play();
     else pause();
-  }, [ctxIsPlaying, play, pause]);
+  }, [ctxIsPlaying, isPlaying, play, pause]);
 
   // audio の実際の状態が変わったら Context を更新（Audio -> Context）
   useEffect(() => {
@@ -140,8 +151,11 @@ export default function Player({
             <input
               type="range"
               min={0}
-              max={duration || track.duration || 100} // duration を優先
-              value={progress}
+              max={Math.max(duration || track.duration || 0, 0)}
+              value={Math.min(
+                progress,
+                Math.max(duration || track.duration || 0)
+              )}
               onChange={(e) => seek(Number(e.target.value))}
               className="w-full"
             />

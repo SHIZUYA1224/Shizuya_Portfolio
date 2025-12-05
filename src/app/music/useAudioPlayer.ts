@@ -9,7 +9,6 @@ export default function useAudioPlayer(track: Track | null) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0); // 秒
   const [volume, setVolume] = useState(1);
-  // 追加: 実際の audio.duration を保持
   const [duration, setDuration] = useState<number>(track?.duration || 0);
 
   // Track 切り替え時の初期化と自動再生
@@ -20,14 +19,10 @@ export default function useAudioPlayer(track: Track | null) {
     audio.src = track.audioUrl;
     audio.load();
 
-    // preserve current volume value when switching sources
     audio.volume = volume;
-
-    // reset UI state (progress/duration fallback)
     setProgress(0);
     setDuration(track.duration || 0);
 
-    // play attempt (catch Promise rejection)
     void audio
       .play()
       .then(() => {
@@ -38,44 +33,51 @@ export default function useAudioPlayer(track: Track | null) {
       });
   }, [track, volume]);
 
-  // loadedmetadata で duration/currentTime をセット
+  // イベント登録: loadedmetadata/timeupdate/play/pause/ended を一か所で登録
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     const onLoaded = () => {
-      // audio.duration は sec なので数値をセット
-      const d = isFinite(audio.duration)
+      const d = Number.isFinite(audio.duration)
         ? audio.duration
         : track?.duration ?? 0;
       setDuration(d);
       setProgress(audio.currentTime || 0);
     };
-    audio.addEventListener('loadedmetadata', onLoaded);
-    return () => audio.removeEventListener('loadedmetadata', onLoaded);
-  }, [track]);
 
-  // timeupdate イベントで進捗を更新
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const update = () => {
-      const current = audio.currentTime || 0;
-      setProgress(current);
-      // sync duration in case it's changed or unknown
-      if (isFinite(audio.duration)) setDuration(audio.duration);
+    const onTimeUpdate = () => {
+      setProgress(audio.currentTime || 0);
+      if (Number.isFinite(audio.duration)) setDuration(audio.duration);
     };
-    audio.addEventListener('timeupdate', update);
-    return () => audio.removeEventListener('timeupdate', update);
-  }, []);
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('loadedmetadata', onLoaded);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+
+    // debug: console.log('[useAudioPlayer] attached audio events', { src: audio.src });
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', onLoaded);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, [track]);
 
   // 音量を audio に反映（外部 setVol からの変更も反映）
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
-  // 明示的な play/pause をエクスポートして Context と同期しやすくする
+  // play/pause/seek/setVol as before
   const play = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -94,7 +96,6 @@ export default function useAudioPlayer(track: Track | null) {
     setIsPlaying(false);
   }, []);
 
-  // 既存の togglePlay を play/pause の wrapper に変更
   const togglePlay = useCallback(() => {
     if (isPlaying) {
       pause();
@@ -103,14 +104,13 @@ export default function useAudioPlayer(track: Track | null) {
     }
   }, [isPlaying, play, pause]);
 
-  // safe seek: loadedmetadata を待つ
   const seek = useCallback((value: number) => {
     const audio = audioRef.current;
     if (!audio) return;
 
     const safeSeek = () => {
       const target = Math.max(0, value);
-      if (isFinite(audio.duration)) {
+      if (Number.isFinite(audio.duration)) {
         audio.currentTime = Math.min(target, audio.duration);
       } else {
         audio.currentTime = target;
@@ -118,9 +118,8 @@ export default function useAudioPlayer(track: Track | null) {
       setProgress(audio.currentTime);
     };
 
-    if (audio.readyState >= 1) {
-      safeSeek();
-    } else {
+    if (audio.readyState >= 1) safeSeek();
+    else {
       const onLoaded = () => {
         safeSeek();
         audio.removeEventListener('loadedmetadata', onLoaded);
@@ -138,7 +137,8 @@ export default function useAudioPlayer(track: Track | null) {
     audioRef,
     progress,
     volume,
-    duration, // 追加: 実際の duration をエクスポート
+    duration,
+    isPlaying, // 表示のみ/比較用
     togglePlay,
     seek,
     setVol,
