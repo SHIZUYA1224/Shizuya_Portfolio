@@ -78,6 +78,20 @@ export default function Header() {
               MUSIC
             </a>
           </li>
+          <li>
+            <a
+              href="/model"
+              className="
+              text-white hover:text-slate-300 relative transition-all duration-300
+              /* 新規: グロー効果 */
+              hover:shadow-[0_0_10px_rgba(59,130,246,0.5)]
+              after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-blue-400 after:to-purple-500 after:transition-all after:duration-300
+              hover:after:w-full
+            "
+            >
+              MODEL
+            </a>
+          </li>
           {/* CTAボタン: そのまま */}
           <li>
             <Button href="#contact" text="Get in Touch" />
